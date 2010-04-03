@@ -1,1 +1,38 @@
-There's nothing here yet... maybe check back later.
+Splitting a Delaunay Triangualation
+
+This program demonstrates an algorithm that "splits" a Delaunay triangulation.
+More specifically, given a Delaunay triangulation of a set of points colored
+red and blue, it computes the corresponding Delaunay triangulations of the set
+of red points and the set of blue points in linear time, and describes each
+step in the process.
+
+To run the demonstration, simply point your browser to the appropriate URL.
+To add a red point, click anywhere in the main area when "red" is selected,
+and to add a blue point, click anywhere in the main area when "blue" is
+selected. The Delaunay triangulation of all of the points is computed
+automatically and displayed. Click "compute" to go through the splitting
+algorithm step-by-step.
+
+
+The algorithm itself takes advantage of the fact that we can add a point to
+a Delaunay triangulation in expected constant time, given that we know the
+location information. The general algorithm is:
+1.) Pick a point to remove, and find its nearest neighbor of the same color.
+2.) Remove that point, and recursively compute the Delaunay triangulations
+of the smaller set of red and blue points.
+3.) Using the nearest neighbor information, add the removed point into the
+correct triangulation using the standard flip produre done in the incremental
+Delaunay algorithm. This avoids the usual log n lookup cost.
+
+A few modifications are necessary to get this algorithm to run with the correct
+bound. For example, choosing a single point at random in step 1 could lead to a
+log n expected running time, so the algorithm instead picks 2 points at random
+and computes the nearest neighbor for both at the same time, stopping when it
+finds the first one. This brings the time distribution closer to the mean in
+such a way that the expected cost becomes constant.
+
+
+The complete algorithm, and its analysis, are described in the paper
+"Splitting a Delaunay Triangulation in Linear Time", by B. Chazelle,
+O. Devillers, F. Hurtado, M. Mora, V. Sacrista ́n, and M. Teillaud.
+
