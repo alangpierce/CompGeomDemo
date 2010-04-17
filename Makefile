@@ -1,5 +1,5 @@
 all : DTSplitter.class ColoredPoint.class Color.class DemoManager.class \
-      ScreenState.class AlgorithmDemo.class
+      ScreenState.class AlgorithmDemo.class RGB.java
 
 DTSplitter.class : DTSplitter.java
 	javac DTSplitter.java
@@ -18,6 +18,9 @@ ScreenState.class : ScreenState.java
 
 AlgorithmDemo.class : AlgorithmDemo.java
 	javac AlgorithmDemo.java
+
+RGB.class : RGB.java
+	javac RGB.java
 
 clean :
 	rm *.class

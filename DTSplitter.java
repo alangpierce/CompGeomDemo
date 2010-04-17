@@ -43,41 +43,36 @@ public class DTSplitter extends PApplet
         fill(0,0,0);
         frameRate(8);
         screenState = new ScreenState();
-        screenState.edges = new ArrayList<Line2D>();
-        screenState.points = new HashSet<ColoredPoint>();
         demoManager = new DemoManager(screenState);
     }  
-    
+
     public void draw()
     {
         background(226);
 
-        // Draw the edges
-        for (Line2D l : screenState.edges)
-        {
-            stroke(0,0,0);
-            line((int)l.getX1(),
-                 (int)l.getY1(),
-                 (int)l.getX2(),
-                 (int)l.getY2());
-        }
+        if (screenState.displayFormat == ScreenState.DisplayFormat.IN_FORMAT)
+        { // Display a triangulation with black edges and colored vertices.
+            // Draw the edges
+            for (Line2D l : screenState.edges)
+                drawLine(l, Color.BLACK);
 
-        // Draw the points
-        for (ColoredPoint p : screenState.points)
-        {
-            double x = p.getX();
-            double y = p.getY();
-            if (p.getColor() == Color.RED)
-            {
-                stroke(255,0,0);
-                fill(255,0,0);
-            }
-            else
-            {
-                stroke(0,0,255);
-                fill(0,0,255);
-            }
-            ellipse((int)x,(int)y, 5, 5);
+            // Draw the points
+            for (ColoredPoint p : screenState.points)
+                drawPoint(p, p.getColor());
+        }
+        else
+        { // Display 2 triangulations with colored edges and vertices.
+            // Draw the edges
+            for (Line2D l : screenState.redEdges)
+                drawLine(l, Color.RED);
+            for (Line2D l : screenState.blueEdges)
+                drawLine(l, Color.BLUE);
+
+            // Draw the points
+            for (Point2D p : screenState.redPoints)
+                drawPoint(p, Color.RED);
+            for (Point2D p : screenState.bluePoints)
+                drawPoint(p, Color.BLUE);
         }
 
         if (mainMode == MainMode.INPUT_MODE)
@@ -109,6 +104,25 @@ public class DTSplitter extends PApplet
                  screenState.displayX,
                  screenState.displayY);
         }
+    }
+
+    private void drawLine(Line2D l, Color color)
+    {
+        RGB c = new RGB(color);
+        fill(c.r,c.g,c.b);
+        stroke(c.r,c.g,c.b);
+        line((int)l.getX1(),
+             (int)l.getY1(),
+             (int)l.getX2(),
+             (int)l.getY2());
+    }
+    
+    private void drawPoint(Point2D p, Color color)
+    {
+        RGB c = new RGB(color);
+        fill(c.r,c.g,c.b);
+        stroke(c.r,c.g,c.b);
+        ellipse((int)p.getX(),(int)p.getY(), 5, 5);
     }
     
     public void mousePressed()
@@ -156,6 +170,7 @@ public class DTSplitter extends PApplet
     {
         if (mainMode == MainMode.INPUT_MODE)
         { // Space toggles color in input mode.
+            assert false;
             if (key == ' ')
             {
                 if (drawColor == Color.RED)
@@ -175,6 +190,15 @@ public class DTSplitter extends PApplet
             if (!demoManager.step())
             { // If we're done, go back into input mode.
                 mainMode = MainMode.INPUT_MODE;
+                screenState.displayFormat = ScreenState.DisplayFormat.IN_FORMAT;
+                assert screenState.points.isEmpty();
+                assert screenState.edges.isEmpty();
+                assert screenState.selectedPoints.isEmpty();
+
+                screenState.redPoints.clear();
+                screenState.redEdges.clear();
+                screenState.bluePoints.clear();
+                screenState.blueEdges.clear();
             }
         }
     }
