@@ -23,20 +23,29 @@ import java.util.*;
 import java.util.zip.*; 
 import java.util.regex.*; 
 
-public class DTSplitter extends PApplet {
+public class DTSplitter extends PApplet
+{
+    Color drawColor = Color.RED;
+    MainMode mainMode = MainMode.INPUT_MODE;
+    DemoManager demoManager;
+    ScreenState screenState;
 
-    HashSet<Point2D> points;
-
-    // Use a really naive algorithm to form the edges: just add lines as long as
-    // they don't create crossings.
-    ArrayList<Line2D> edges = new ArrayList<Line2D>();
+    enum MainMode
+    {
+        INPUT_MODE,
+        DEMO_MODE
+    }
 
     public void setup()
     {
-        points = new HashSet<Point2D>();
         size(640, 480);
         smooth();
         fill(0,0,0);
+        frameRate(8);
+        screenState = new ScreenState();
+        screenState.edges = new ArrayList<Line2D>();
+        screenState.points = new HashSet<ColoredPoint>();
+        demoManager = new DemoManager(screenState);
     }  
     
     public void draw()
@@ -44,8 +53,9 @@ public class DTSplitter extends PApplet {
         background(226);
 
         // Draw the edges
-        for (Line2D l : edges)
+        for (Line2D l : screenState.edges)
         {
+            stroke(0,0,0);
             line((int)l.getX1(),
                  (int)l.getY1(),
                  (int)l.getX2(),
@@ -53,51 +63,120 @@ public class DTSplitter extends PApplet {
         }
 
         // Draw the points
-        for (Point2D p : points)
+        for (ColoredPoint p : screenState.points)
         {
             double x = p.getX();
             double y = p.getY();
-            ellipse((int)x,(int)y, 3, 3);
+            if (p.getColor() == Color.RED)
+            {
+                stroke(255,0,0);
+                fill(255,0,0);
+            }
+            else
+            {
+                stroke(0,0,255);
+                fill(0,0,255);
+            }
+            ellipse((int)x,(int)y, 5, 5);
         }
 
+        if (mainMode == MainMode.INPUT_MODE)
+        { /* The info at the bottom depends on what mode we're in. */
+            // Draw the instructions
+            fill(0,0,0);
+            text("Current Color:", 425, 440);
+
+            if (drawColor == Color.RED)
+            {
+                fill(255,0,0);
+                text("Red", 517, 440);
+            }
+            else
+            {
+                fill(0,0,255);
+                text("Blue", 517, 440);
+            }
+
+            fill(0,0,0);
+            text("Press space to toggle color.", 425, 455);
+            text("Press enter to start the algorithm.", 425, 470);
+        }
+        else
+        {
+            fill(0,0,0);
+            stroke(0,0,0);
+            text(screenState.displayText,
+                 screenState.displayX,
+                 screenState.displayY);
+        }
     }
     
     public void mousePressed()
     {
-        Point2D mousePoint = new Point2D.Double(mouseX ,mouseY);
-        for (Point2D p : points)
-        {
-            boolean good = true;
-
-            for (Line2D l : edges)
+        if (mainMode == MainMode.INPUT_MODE)
+        { // Handle user input
+            ColoredPoint mousePoint = new ColoredPoint(mouseX, mouseY, drawColor);
+            for (ColoredPoint p : screenState.points)
             {
-                // We can't intersect a line if one of the points is the
-                // same. We aren't using any math operations to cause
-                // roundoff, and all of this code is a hack anyway, so I'm
-                // just using equals.
-                if (l.getP1().equals(p) ||
-                        l.getP1().equals(mousePoint) ||
-                        l.getP2().equals(p) ||
-                        l.getP2().equals(mousePoint))
-                    continue;
+                boolean good = true;
 
-                if (l.intersectsLine(p.getX(),
-                                     p.getY(),
-                                     mousePoint.getX(),
-                                     mousePoint.getY()))
+                for (Line2D l : screenState.edges)
                 {
-                    good = false;
-                    break;
+                    // We can't intersect a line if one of the points is the
+                    // same. We aren't using any math operations to cause
+                    // roundoff, and all of this code is a hack anyway, so I'm
+                    // just using equals.
+                    if (l.getP1().equals(p) ||
+                            l.getP1().equals(mousePoint) ||
+                            l.getP2().equals(p) ||
+                            l.getP2().equals(mousePoint))
+                        continue;
+
+                    if (l.intersectsLine(p.getX(),
+                                         p.getY(),
+                                         mousePoint.getX(),
+                                         mousePoint.getY()))
+                    {
+                        good = false;
+                        break;
+                    }
                 }
+
+                if (good)
+                    screenState.edges.add(new Line2D.Double(p, mousePoint));
             }
 
-            if (good)
-                edges.add(new Line2D.Double(p, mousePoint));
+            // When the user clicks, add all necessary edges, then add that point
+            // to our set of points.
+            screenState.points.add(mousePoint);
         }
+    }
 
-        // When the user clicks, add all necessary edges, then add that point
-        // to out set of points.
-        points.add(new Point2D.Double(mouseX, mouseY));
+    public void keyPressed()
+    {
+        if (mainMode == MainMode.INPUT_MODE)
+        { // Space toggles color in input mode.
+            if (key == ' ')
+            {
+                if (drawColor == Color.RED)
+                    drawColor = Color.BLUE;
+                else
+                    drawColor = Color.RED;
+            }
+
+            if (key == ENTER || key == RETURN)
+            {
+                demoManager.startDemo();
+                mainMode = MainMode.DEMO_MODE;
+            }
+        }
+        else
+        { // Space steps the algorithm demonstration in demo mode.
+            if (!demoManager.step())
+            { // If we're done, go back into input mode.
+                mainMode = MainMode.INPUT_MODE;
+            }
+        }
     }
     
     static public void main(String args[])
