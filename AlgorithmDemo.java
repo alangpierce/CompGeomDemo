@@ -43,7 +43,7 @@ class AlgorithmDemo
         switch (algoState)
         {
             case CHOOSE_POINTS:
-                if (screenState.points.isEmpty())
+                if (screenState.triangulation.isEmpty())
                 { /* Test for base case in our first step. */
                     screenState.displayText =
                         "There are no points, so this is the base case";
@@ -69,10 +69,10 @@ class AlgorithmDemo
             case REMOVE_POINT:
                 screenState.displayText = 
                     "Remove the point from the triangulation.";
-                for (ColoredPoint p : screenState.points)
+                for (ColoredPoint p : screenState.triangulation.points())
                 {
                     removedPoint = p;
-                    screenState.points.remove(p);
+                    screenState.triangulation.removePoint(p);
                     break;
                 }
                 algoState = AlgoState.RECURSIVE_CALL;
@@ -105,7 +105,7 @@ class AlgorithmDemo
                     "neighbor.\n" +
                     "Add the removed point back in.";
 
-                screenState.bluePoints.add(removedPoint);
+                screenState.blueTriangulation.addPoint(removedPoint);
 
                 algoState = AlgoState.DELAUNAY_FLIP;
                 break;

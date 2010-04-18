@@ -1,5 +1,6 @@
 all : DTSplitter.class ColoredPoint.class Color.class DemoManager.class \
-      ScreenState.class AlgorithmDemo.class RGB.java
+      ScreenState.class AlgorithmDemo.class RGB.class Triangulation.class \
+      Matrix.class
 
 DTSplitter.class : DTSplitter.java
 	javac DTSplitter.java
@@ -21,6 +22,12 @@ AlgorithmDemo.class : AlgorithmDemo.java
 
 RGB.class : RGB.java
 	javac RGB.java
+
+Triangulation.class : Triangulation.java
+	javac Triangulation.java
+
+Matrix.class : Matrix.java
+	javac Matrix.java
 
 clean :
 	rm *.class

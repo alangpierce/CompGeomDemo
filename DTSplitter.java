@@ -53,25 +53,25 @@ public class DTSplitter extends PApplet
         if (screenState.displayFormat == ScreenState.DisplayFormat.IN_FORMAT)
         { // Display a triangulation with black edges and colored vertices.
             // Draw the edges
-            for (Line2D l : screenState.edges)
+            for (Line2D l : screenState.triangulation.edges())
                 drawLine(l, Color.BLACK);
 
             // Draw the points
-            for (ColoredPoint p : screenState.points)
+            for (ColoredPoint p : screenState.triangulation.points())
                 drawPoint(p, p.getColor());
         }
         else
         { // Display 2 triangulations with colored edges and vertices.
             // Draw the edges
-            for (Line2D l : screenState.redEdges)
+            for (Line2D l : screenState.redTriangulation.edges())
                 drawLine(l, Color.RED);
-            for (Line2D l : screenState.blueEdges)
+            for (Line2D l : screenState.blueTriangulation.edges())
                 drawLine(l, Color.BLUE);
 
             // Draw the points
-            for (Point2D p : screenState.redPoints)
+            for (Point2D p : screenState.redTriangulation.points())
                 drawPoint(p, Color.RED);
-            for (Point2D p : screenState.bluePoints)
+            for (Point2D p : screenState.blueTriangulation.points())
                 drawPoint(p, Color.BLUE);
         }
 
@@ -129,40 +129,8 @@ public class DTSplitter extends PApplet
     {
         if (mainMode == MainMode.INPUT_MODE)
         { // Handle user input
-            ColoredPoint mousePoint = new ColoredPoint(mouseX, mouseY, drawColor);
-            for (ColoredPoint p : screenState.points)
-            {
-                boolean good = true;
-
-                for (Line2D l : screenState.edges)
-                {
-                    // We can't intersect a line if one of the points is the
-                    // same. We aren't using any math operations to cause
-                    // roundoff, and all of this code is a hack anyway, so I'm
-                    // just using equals.
-                    if (l.getP1().equals(p) ||
-                            l.getP1().equals(mousePoint) ||
-                            l.getP2().equals(p) ||
-                            l.getP2().equals(mousePoint))
-                        continue;
-
-                    if (l.intersectsLine(p.getX(),
-                                         p.getY(),
-                                         mousePoint.getX(),
-                                         mousePoint.getY()))
-                    {
-                        good = false;
-                        break;
-                    }
-                }
-
-                if (good)
-                    screenState.edges.add(new Line2D.Double(p, mousePoint));
-            }
-
-            // When the user clicks, add all necessary edges, then add that point
-            // to our set of points.
-            screenState.points.add(mousePoint);
+            screenState.triangulation.addDelaunayPoint(
+                    new ColoredPoint(mouseX, mouseY, drawColor));
         }
     }
 
@@ -191,14 +159,11 @@ public class DTSplitter extends PApplet
             { // If we're done, go back into input mode.
                 mainMode = MainMode.INPUT_MODE;
                 screenState.displayFormat = ScreenState.DisplayFormat.IN_FORMAT;
-                assert screenState.points.isEmpty();
-                assert screenState.edges.isEmpty();
+                assert screenState.triangulation.isEmpty();
                 assert screenState.selectedPoints.isEmpty();
 
-                screenState.redPoints.clear();
-                screenState.redEdges.clear();
-                screenState.bluePoints.clear();
-                screenState.blueEdges.clear();
+                screenState.redTriangulation.clear();
+                screenState.blueTriangulation.clear();
             }
         }
     }

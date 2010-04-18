@@ -7,13 +7,10 @@ class ScreenState
 {
     public ScreenState()
     {
-        points = new HashSet<ColoredPoint>();
-        edges = new ArrayList<Line2D>();
+        triangulation = new Triangulation();
+        redTriangulation = new Triangulation();
+        blueTriangulation = new Triangulation();
         selectedPoints = new ArrayList<Point2D>();
-        redPoints = new HashSet<Point2D>();
-        redEdges = new ArrayList<Line2D>();
-        bluePoints = new HashSet<Point2D>();
-        blueEdges = new ArrayList<Line2D>();
         displayFormat = DisplayFormat.IN_FORMAT;
     }
 
@@ -27,17 +24,13 @@ class ScreenState
 
     /* User input format: colored points with edges denoting their Delaunay
      * triangulation. */
-    public HashSet<ColoredPoint> points;
-    public ArrayList<Line2D> edges;
-
+    public Triangulation triangulation;
     public ArrayList<Point2D> selectedPoints;
 
     /* Output format: colored points with colored edges creating two Delaunay
      * triangulations. */
-    public HashSet<Point2D> redPoints;
-    public ArrayList<Line2D> redEdges;
-    public HashSet<Point2D> bluePoints;
-    public ArrayList<Line2D> blueEdges;
+    public Triangulation redTriangulation;
+    public Triangulation blueTriangulation;
 
     /* Text display info. */
     public int displayX;
