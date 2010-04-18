@@ -1,4 +1,4 @@
-Splitting a Delaunay Triangualation
+Slitting a Delaunay Triangualation
 
 This program demonstrates an algorithm that "splits" a Delaunay triangulation.
 More specifically, given a Delaunay triangulation of a set of points colored
@@ -34,5 +34,5 @@ such a way that the expected cost becomes constant.
 
 The complete algorithm, and its analysis, are described in the paper
 "Splitting a Delaunay Triangulation in Linear Time", by B. Chazelle,
-O. Devillers, F. Hurtado, M. Mora, V. Sacrista ́n, and M. Teillaud.
+O. Devillers, F. Hurtado, M. Mora, V. Sacristan, and M. Teillaud.
 

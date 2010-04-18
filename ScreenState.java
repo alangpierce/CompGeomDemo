@@ -10,7 +10,8 @@ class ScreenState
         triangulation = new Triangulation();
         redTriangulation = new Triangulation();
         blueTriangulation = new Triangulation();
-        selectedPoints = new ArrayList<Point2D>();
+        selectedPoints = new ArrayList<ColoredPoint>();
+        crossedOffPoints = new ArrayList<ColoredPoint>();
         displayFormat = DisplayFormat.IN_FORMAT;
     }
 
@@ -25,7 +26,8 @@ class ScreenState
     /* User input format: colored points with edges denoting their Delaunay
      * triangulation. */
     public Triangulation triangulation;
-    public ArrayList<Point2D> selectedPoints;
+    public ArrayList<ColoredPoint> selectedPoints;
+    public ArrayList<ColoredPoint> crossedOffPoints;
 
     /* Output format: colored points with colored edges creating two Delaunay
      * triangulations. */

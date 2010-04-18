@@ -1,4 +1,4 @@
-
+import java.util.*;
 
 /* A single run of the algorithm (recursive calls create more AlgorithmDemo
  * objects). */
@@ -11,8 +11,16 @@ class AlgorithmDemo
     AlgoState algoState;
 
     /* Keep track of the point that we remove */
+    ColoredPoint chosenPoint1;
+    ColoredPoint chosenPoint2;
+
     ColoredPoint removedPoint;
     ColoredPoint removedNeighbor;
+
+    ArrayList<ColoredPoint> searchPoints1;
+    ArrayList<ColoredPoint> searchPoints2;
+
+    Triangulation currentTriangulation;
 
     /* We keep track of which step in the algorithm we are in. */
     enum AlgoState
@@ -43,18 +51,52 @@ class AlgorithmDemo
         switch (algoState)
         {
             case CHOOSE_POINTS:
-                if (screenState.triangulation.isEmpty())
+                if (screenState.triangulation.points().size() < 3)
                 { /* Test for base case in our first step. */
                     screenState.displayText =
-                        "There are no points, so this is the base case";
+                        "There are fewer than 3 points, so this is a base case";
+
+                    for (ColoredPoint p : screenState.triangulation.points())
+                    {
+                        if (p.getColor() == Color.RED)
+                            screenState.redTriangulation.addPoint(p);
+                        else
+                            screenState.blueTriangulation.addPoint(p);
+                    }
+
+                    screenState.triangulation.clear();
+
                     screenState.displayFormat = ScreenState.DisplayFormat.OUT_FORMAT;
                     algoState = AlgoState.END_ALGORITHM;
                 }
                 else
-                { /* The normal condition is that we choose the points at
+                { /* The normal condition is that we choose two points at
                    * random. */
                     screenState.displayText = 
                         "Choose two points at random.";
+
+                    searchPoints1 = new
+                        ArrayList<ColoredPoint>(screenState.triangulation.points());
+                    searchPoints2 = new ArrayList<ColoredPoint>(searchPoints1);
+
+                    Random r = new Random();
+                    int pt1 = r.nextInt(searchPoints1.size());
+                    int pt2;
+                    
+                    do
+                    {
+                        pt2 = r.nextInt(searchPoints1.size());
+                    } while (pt2 == pt1);
+
+                    chosenPoint1 = searchPoints1.get(pt1);
+                    chosenPoint2 = searchPoints1.get(pt2);
+
+                    searchPoints1.remove(chosenPoint1);
+                    searchPoints2.remove(chosenPoint2);
+
+                    screenState.selectedPoints.add(chosenPoint1);
+                    screenState.selectedPoints.add(chosenPoint2);
+
                     algoState = AlgoState.FIND_NEIGHBOR;
                 }
                 break;
@@ -63,18 +105,63 @@ class AlgorithmDemo
                 screenState.displayText = 
                     "Find the nearest same-color neighbor of one of those " +
                     "points.";
-                algoState = AlgoState.REMOVE_POINT;
+
+                double nearestDistance = -1.0;
+                ColoredPoint nearPoint = null;
+                ColoredPoint neighbor = null;
+
+                /* Find the nearest neighbor of either point that hasn't yet
+                 * been removed. We need to keep two separate lists beause if we
+                 * don't, then we might remove a point for being the wrong
+                 * color, when really it should have matched with the other
+                 * point. */
+                for (ColoredPoint p : searchPoints1)
+                {
+                    if (nearestDistance == -1.0 ||
+                        p.distance(chosenPoint1) < nearestDistance)
+                    {
+                        nearestDistance = p.distance(chosenPoint1);
+                        nearPoint = chosenPoint1;
+                        neighbor = p;
+                    }
+                }
+                for (ColoredPoint p : searchPoints2)
+                {
+                    if (nearestDistance == -1.0 ||
+                        p.distance(chosenPoint2) < nearestDistance)
+                    {
+                        nearestDistance = p.distance(chosenPoint2);
+                        nearPoint = chosenPoint2;
+                        neighbor = p;
+                    }
+                }
+
+                if (neighbor.getColor() == nearPoint.getColor())
+                {
+                    removedPoint = nearPoint;
+                    screenState.selectedPoints.add(neighbor);
+                    screenState.crossedOffPoints.clear();
+                    algoState = AlgoState.REMOVE_POINT;
+                }
+                else
+                {
+                    screenState.crossedOffPoints.add(neighbor);
+                    if (nearPoint.equals(chosenPoint1))
+                        searchPoints1.remove(neighbor);
+                    else
+                        searchPoints2.remove(neighbor);
+                }
+
                 break;
 
             case REMOVE_POINT:
                 screenState.displayText = 
-                    "Remove the point from the triangulation.";
-                for (ColoredPoint p : screenState.triangulation.points())
-                {
-                    removedPoint = p;
-                    screenState.triangulation.removePoint(p);
-                    break;
-                }
+                    "Save the information about the neighbor and remove the" +
+                    " point from the triangulation. .";
+
+                screenState.triangulation.removePoint(removedPoint);
+                screenState.selectedPoints.clear();
+
                 algoState = AlgoState.RECURSIVE_CALL;
                 break;
 
@@ -105,7 +192,12 @@ class AlgorithmDemo
                     "neighbor.\n" +
                     "Add the removed point back in.";
 
-                screenState.blueTriangulation.addPoint(removedPoint);
+                if (removedPoint.getColor() == Color.RED)
+                    currentTriangulation = screenState.redTriangulation;
+                else
+                    currentTriangulation = screenState.blueTriangulation;
+
+                currentTriangulation.addPoint(removedPoint);
 
                 algoState = AlgoState.DELAUNAY_FLIP;
                 break;
@@ -114,7 +206,10 @@ class AlgorithmDemo
                 screenState.displayText = 
                     "Apply Delaunay flips to make the triangulation a " +
                     "Delaunay triangulation.";
-                algoState = AlgoState.END_ALGORITHM;
+                
+                if (!currentTriangulation.stepDelaunay(removedPoint))
+                    algoState = AlgoState.END_ALGORITHM;
+
                 break;
 
             case END_ALGORITHM:

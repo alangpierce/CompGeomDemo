@@ -122,13 +122,6 @@ class Triangulation
             ;
     }
 
-    /* Delaunize the neighborhood of a point, as we would do in the incremental
-     * Delaunay Triangulation algorithm. */
-    public boolean stepDelaunay(ColoredPoint p)
-    {
-        return false;
-    }
-
     public void removePoint(ColoredPoint p)
     {
         points.remove(p);
@@ -180,24 +173,40 @@ class Triangulation
                     break;
                 }
             }
-            System.out.println("counter: " + counter);
             counter++;
             if (counter > 100)
                 break;
         } while (updated);
     }
 
+    /* Delaunize the neighborhood of a point, as we would do in the incremental
+     * Delaunay Triangulation algorithm. Return false if no edge could be
+     * flipped. Otherwise, return true and flip one edge. */
+    public boolean stepDelaunay(ColoredPoint p)
+    {
+        for (Line2D l : edges)
+        {
+            if (lineInSet(new Line2D.Double(p, l.getP1()), edges) &&
+                lineInSet(new Line2D.Double(p, l.getP2()), edges))
+            {
+                if (flipEdge(l))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+
     public boolean lineInSet(Line2D l, HashSet<Line2D> set)
     {
         for (Line2D m : set)
         {
             // TODO: fix this awful hack. It turns out the Line2D isn't as nice
-            // as I wanted it to be.
+            // as I wanted it to be, and keeps the points as an ordered pair
+            // instead of an unordered one.
             if ((l.getP1().equals(m.getP1()) && l.getP2().equals(m.getP2())) ||
                 (l.getP1().equals(m.getP2()) && l.getP2().equals(m.getP1())))
                 return true;
-//            System.out.println("(" + m.getP1() + "," + m.getP2() + " does not "
-//                + "equal (" + l.getP1() + "," + l.getP2() + ")");
         }
         return false;
     }
@@ -218,16 +227,9 @@ class Triangulation
         {
             /* Any neighbors we add need to be adjacent to both points in our
              * edge. */
-            //if (!edges.contains(new Line2D.Double(q,p1)) ||
-            //        !edges.contains(new Line2D.Double(q,p2)))
             if (!lineInSet(new Line2D.Double(q,p1), edges) ||
                 !lineInSet(new Line2D.Double(q,p2), edges))
             {
-            //    System.out.println("Searched for (" + q + "," + p1 + ") and (" +
-            //    q + "," + p2 + ") in the following array:");
-            //    for (Line2D line : edges)
-            //        System.out.println("" + line.getP1() + "," + line.getP2());
-            //    System.out.println("didn't find");
                 continue;
             }
 
@@ -258,8 +260,6 @@ class Triangulation
             if (ptInTriangle(q,p1,p2,neighbor2))
                 neighbor2 = q;
         }
-
-        System.out.println("neighbor1: " + neighbor1 + " neighbor2 " + neighbor2);
 
         if (neighbor2 == null)
             return false;
@@ -302,9 +302,6 @@ class Triangulation
                               {a.getY(), b.getY(), c.getY(), p.getY()},
                               {asqr,     bsqr,     csqr,     psqr},
                               {1.0,      1.0,      1.0,      1.0}};
-
-        System.out.println("Det is " + Matrix.determinant(matrix.clone()));
-        System.out.println("CCW is " + CCW(a,b,c));
 
         return sign(Matrix.determinant(matrix)) * CCW(a,b,c) >= 0;
     }

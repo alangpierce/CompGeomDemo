@@ -1,28 +1,34 @@
 <html>
 
-<title>Non-Delaunay Triangulation Generator</title>
+<title>Delaunay Triangulation Splitter</title>
 
 <body>
 
-<h1>Non-Delaunay Triangulation Generator</h1>
+<h1>Delaunay Triangulation Splitter</h1>
 
 <h2>By Alan Pierce</h2>
 
-<p> Click in the area below to find some non-Delaunay triangulation of a set of
-points. (This will eventually turn into a more useful applet.) </p>
+<p> Add red and blue points to the area below, and then hit enter and press
+space over and over to step through and algorithm that finds the Delaunay
+triangulation of just the red points and the Delaunay triangulation of just the
+blue points.</p>
+
+<p> Note that this is still a work in progress. There are plenty of known
+potential improvements and possible bugs. </p>
+
 <br />
 
-<applet code="DTSplitter.class" width=600 height=400>
+<applet code="DTSplitter.class" width=640 height=480>
 You need to have Java enabled to use this.
 </applet>
 
 <br />
 <br />
 
-Known bugs:
-<ul>
-<li>Sometimes the triangulation created actually is the Delaunay triangulation.</li>
-</ul>
+
+The complete algorithm, and its analysis, are described in the paper
+"Splitting a Delaunay Triangulation in Linear Time", by B. Chazelle,
+O. Devillers, F. Hurtado, M. Mora, V. Sacristan, and M. Teillaud.
 
 </body>
 </html>

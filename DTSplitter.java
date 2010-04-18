@@ -59,6 +59,12 @@ public class DTSplitter extends PApplet
             // Draw the points
             for (ColoredPoint p : screenState.triangulation.points())
                 drawPoint(p, p.getColor());
+
+            for (ColoredPoint p : screenState.selectedPoints)
+                drawSelectedPoint(p);
+
+            for (ColoredPoint p : screenState.crossedOffPoints)
+                drawCrossedOffPoint(p);
         }
         else
         { // Display 2 triangulations with colored edges and vertices.
@@ -124,6 +130,29 @@ public class DTSplitter extends PApplet
         stroke(c.r,c.g,c.b);
         ellipse((int)p.getX(),(int)p.getY(), 5, 5);
     }
+
+    private void drawSelectedPoint(Point2D p)
+    {
+        // The circle should be transparent on the interior
+        fill(0,0,0,0);
+        stroke(0,0,0);
+        ellipse((int)p.getX(),(int)p.getY(), 15, 15);
+    }
+
+    private void drawCrossedOffPoint(Point2D p)
+    {
+        fill(0,0,0);
+        stroke(0,0,0);
+        // Draw the two lines to make an X
+        line((int)p.getX() - 5,
+             (int)p.getY() - 5,
+             (int)p.getX() + 5,
+             (int)p.getY() + 5);
+        line((int)p.getX() + 5,
+             (int)p.getY() - 5,
+             (int)p.getX() - 5,
+             (int)p.getY() + 5);
+    }
     
     public void mousePressed()
     {
@@ -155,15 +184,18 @@ public class DTSplitter extends PApplet
         }
         else
         { // Space steps the algorithm demonstration in demo mode.
-            if (!demoManager.step())
-            { // If we're done, go back into input mode.
-                mainMode = MainMode.INPUT_MODE;
-                screenState.displayFormat = ScreenState.DisplayFormat.IN_FORMAT;
-                assert screenState.triangulation.isEmpty();
-                assert screenState.selectedPoints.isEmpty();
+            if (key == ' ')
+            {
+                if (!demoManager.step())
+                { // If we're done, go back into input mode.
+                    mainMode = MainMode.INPUT_MODE;
+                    screenState.displayFormat = ScreenState.DisplayFormat.IN_FORMAT;
+                    assert screenState.triangulation.isEmpty();
+                    assert screenState.selectedPoints.isEmpty();
 
-                screenState.redTriangulation.clear();
-                screenState.blueTriangulation.clear();
+                    screenState.redTriangulation.clear();
+                    screenState.blueTriangulation.clear();
+                }
             }
         }
     }

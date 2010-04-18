@@ -27,10 +27,6 @@ class Matrix
                 addRow(m, i, j, -m[j][i] / m[i][i]);
         }
 
-        for (int i = 0; i < m.length; i++)
-            System.out.println(Arrays.toString(m[i]));
-        System.out.println();
-
         /* Multiply the terms along the diagonal. */
         for(int i = 0; i < m.length; i++)
             res *= m[i][i];
@@ -61,8 +57,6 @@ class Matrix
     {
         double[][] matrix1 = {{5.0,3.0},
                               {2.0,1.0}};
-
-        System.out.println("Det: " + determinant(matrix1));
 
         assert Math.abs(determinant(matrix1) + 1) < 1e-9;
 
