@@ -10,10 +10,13 @@ class AlgorithmDemo
     AlgorithmDemo recursiveCall;
     AlgoState algoState;
 
-    /* Keep track of the point that we remove */
+    /* The points that we choose at the beginning. The color of these points is
+     * their original color (red or blue), not the displayed color (green or
+     * yellow). */
     ColoredPoint chosenPoint1;
     ColoredPoint chosenPoint2;
 
+    /* Keep track of the point that we remove */
     ColoredPoint removedPoint;
     ColoredPoint removedNeighbor;
 
@@ -21,6 +24,9 @@ class AlgorithmDemo
     ArrayList<ColoredPoint> searchPoints2;
 
     Triangulation currentTriangulation;
+
+    public static Color chosen1Color = Color.YELLOW;
+    public static Color chosen2Color = Color.GREEN;
 
     /* We keep track of which step in the algorithm we are in. */
     enum AlgoState
@@ -94,8 +100,10 @@ class AlgorithmDemo
                     searchPoints1.remove(chosenPoint1);
                     searchPoints2.remove(chosenPoint2);
 
-                    screenState.selectedPoints.add(chosenPoint1);
-                    screenState.selectedPoints.add(chosenPoint2);
+                    screenState.selectedPoints.add(
+                            chosenPoint1.withColor(chosen1Color));
+                    screenState.selectedPoints.add(
+                            chosenPoint2.withColor(chosen2Color));
 
                     algoState = AlgoState.FIND_NEIGHBOR;
                 }
@@ -139,17 +147,42 @@ class AlgorithmDemo
                 if (neighbor.getColor() == nearPoint.getColor())
                 {
                     removedPoint = nearPoint;
-                    screenState.selectedPoints.add(neighbor);
+                    Color goodColor = null;
+                    if (nearPoint.equals(chosenPoint1))
+                        goodColor = chosen1Color;
+                    else if (nearPoint.equals(chosenPoint2))
+                        goodColor = chosen2Color;
+                    else
+                        assert false;
+
+                    screenState.foundPoints.add(neighbor.withColor(goodColor));
+                    screenState.selectedPoints.clear();
+                    screenState.selectedPoints.add(
+                            nearPoint.withColor(goodColor));
+
                     screenState.crossedOffPoints.clear();
                     algoState = AlgoState.REMOVE_POINT;
                 }
                 else
                 {
-                    screenState.crossedOffPoints.add(neighbor);
+                    ColoredPoint crossedOff =
+                            neighbor.withColor(nearPoint.getColor());
+                    /* We want to shift left or right based on the color, so
+                     * that it is apparent when a point gets crossed off twice. */
                     if (nearPoint.equals(chosenPoint1))
+                    {
+                        screenState.crossedOffPoints.add(
+                                crossedOff.withColor(chosen1Color).shiftX(-2));
                         searchPoints1.remove(neighbor);
-                    else
+                    }
+                    else if (nearPoint.equals(chosenPoint2))
+                    {
+                        screenState.crossedOffPoints.add(
+                                crossedOff.withColor(chosen2Color).shiftX(2));
                         searchPoints2.remove(neighbor);
+                    }
+                    else
+                        assert false;
                 }
 
                 break;
@@ -161,6 +194,7 @@ class AlgorithmDemo
 
                 screenState.triangulation.removePoint(removedPoint);
                 screenState.selectedPoints.clear();
+                screenState.foundPoints.clear();
 
                 algoState = AlgoState.RECURSIVE_CALL;
                 break;

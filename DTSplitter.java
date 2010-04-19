@@ -30,6 +30,17 @@ public class DTSplitter extends PApplet
     DemoManager demoManager;
     ScreenState screenState;
 
+    /* The "boldness" of a circle that selects a point. */
+    static final int selectCircleDiameter = 15;
+    static final int selectCircleWidth = 4;
+    
+    /* Width of an X that crossed off a point. */
+    static final int crossedOffWidth = 2;
+
+    /* Width of an X that crossed off a point. */
+    static final int foundSquareWidth = 4;
+    static final int foundSquareLength = 15;
+
     enum MainMode
     {
         INPUT_MODE,
@@ -62,6 +73,9 @@ public class DTSplitter extends PApplet
 
             for (ColoredPoint p : screenState.selectedPoints)
                 drawSelectedPoint(p);
+
+            for (ColoredPoint p : screenState.foundPoints)
+                drawFoundPoint(p);
 
             for (ColoredPoint p : screenState.crossedOffPoints)
                 drawCrossedOffPoint(p);
@@ -131,18 +145,42 @@ public class DTSplitter extends PApplet
         ellipse((int)p.getX(),(int)p.getY(), 5, 5);
     }
 
-    private void drawSelectedPoint(Point2D p)
+    private void drawSelectedPoint(ColoredPoint p)
     {
         // The circle should be transparent on the interior
+        RGB c = new RGB(p.getColor());
         fill(0,0,0,0);
-        stroke(0,0,0);
-        ellipse((int)p.getX(),(int)p.getY(), 15, 15);
+        stroke(c.r,c.g,c.b);
+        strokeWeight(selectCircleWidth);
+
+        ellipse((int)p.getX(),(int)p.getY(),
+                    selectCircleDiameter, selectCircleDiameter);
+
+        strokeWeight(1);
     }
 
-    private void drawCrossedOffPoint(Point2D p)
+    private void drawFoundPoint(ColoredPoint p)
     {
+        RGB c = new RGB(p.getColor());
+        fill(0,0,0,0);
+        stroke(c.r,c.g,c.b);
+        strokeWeight(foundSquareWidth);
+        rectMode(CENTER);
+
+        // Draw the border over and over, one for each width
+        rect((int)p.getX(),(int)p.getY(),
+                    foundSquareLength, foundSquareLength);
+
+        strokeWeight(1);
+    }
+
+    private void drawCrossedOffPoint(ColoredPoint p)
+    {
+        RGB c = new RGB(p.getColor());
         fill(0,0,0);
-        stroke(0,0,0);
+        stroke(c.r,c.g,c.b);
+        strokeWeight(crossedOffWidth);
+
         // Draw the two lines to make an X
         line((int)p.getX() - 5,
              (int)p.getY() - 5,
@@ -152,6 +190,8 @@ public class DTSplitter extends PApplet
              (int)p.getY() - 5,
              (int)p.getX() - 5,
              (int)p.getY() + 5);
+
+        strokeWeight(1);
     }
     
     public void mousePressed()

@@ -25,6 +25,21 @@ public class RGB
                 g = 0;
                 b = 255;
                 break;
+
+            case YELLOW:
+                r = 192;
+                g = 192;
+                b = 0;
+                break;
+
+            case GREEN:
+                r = 0;
+                g = 128; // Dark green is better-looking than pure green
+                b = 0;
+                break;
+
+            default:
+                assert false;
         }
     }
 }

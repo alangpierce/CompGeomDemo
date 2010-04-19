@@ -20,6 +20,18 @@ class ColoredPoint
     {
         return color;
     }
+
+    /* Return a new point with a different color. */
+    public ColoredPoint withColor(Color newColor)
+    {
+        return new ColoredPoint(getX(), getY(), newColor);
+    }
+
+    /* Return a new point with x shifted. */
+    public ColoredPoint shiftX(double dx)
+    {
+        return new ColoredPoint(getX()+dx, getY(), color);
+    }
 }
 
 
