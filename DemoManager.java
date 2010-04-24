@@ -21,13 +21,7 @@ class DemoManager
     /* Returns false if the demo is over. */
     public boolean step()
     {
-        if (topLevelDemo.step())
-            return true;
-        else
-        {
-            screenState.backgroundTriangulation.clear();
-            return false;
-        }
+        return topLevelDemo.step();
     }
 }
 

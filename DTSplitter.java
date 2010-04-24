@@ -30,6 +30,8 @@ public class DTSplitter extends PApplet
     DemoManager demoManager;
     ScreenState screenState;
 
+    static boolean demoOver = false;
+
     /* The "boldness" of a circle that selects a point. */
     static final int selectCircleDiameter = 15;
     static final int selectCircleWidth = 4;
@@ -245,7 +247,19 @@ public class DTSplitter extends PApplet
             if (key == ' ')
             {
                 if (!demoManager.step())
-                { // If we're done, go back into input mode.
+                { // Wait for the user to press enter, in case they were
+                  // spamming the space bar.
+                    screenState.displayText = "Demo over. Press Enter to " +
+                        "input a new set of points";
+                    demoOver = true;
+                }
+            }
+
+            if (key == ENTER || key == RETURN)
+            {
+                if (demoOver)
+                {
+                    demoOver = false;
                     mainMode = MainMode.INPUT_MODE;
                     screenState.backgroundTriangulation.clear();
                     screenState.displayFormat = ScreenState.DisplayFormat.IN_FORMAT;
