@@ -63,6 +63,14 @@ public class DTSplitter extends PApplet
 
         if (screenState.displayFormat == ScreenState.DisplayFormat.IN_FORMAT)
         { // Display a triangulation with black edges and colored vertices.
+            
+            // Draw the background triangulation
+            for (Line2D l : screenState.backgroundTriangulation.edges())
+                drawLine(l, Color.LIGHT_GRAY);
+
+            for (ColoredPoint p : screenState.backgroundTriangulation.points())
+                drawPoint(p, Color.LIGHT_GRAY);
+
             // Draw the edges
             for (Line2D l : screenState.triangulation.edges())
                 drawLine(l, Color.BLACK);
@@ -82,6 +90,14 @@ public class DTSplitter extends PApplet
         }
         else
         { // Display 2 triangulations with colored edges and vertices.
+
+            // Draw the background triangulation
+            for (Line2D l : screenState.backgroundTriangulation.edges())
+                drawLine(l, Color.LIGHT_GRAY);
+
+            for (ColoredPoint p : screenState.backgroundTriangulation.points())
+                drawPoint(p, Color.LIGHT_GRAY);
+
             // Draw the edges
             for (Line2D l : screenState.redTriangulation.edges())
                 drawLine(l, Color.RED);
@@ -128,9 +144,9 @@ public class DTSplitter extends PApplet
 
     private void drawLine(Line2D l, Color color)
     {
-        RGB c = new RGB(color);
-        fill(c.r,c.g,c.b);
-        stroke(c.r,c.g,c.b);
+        RGBA c = new RGBA(color);
+        fill(c.r,c.g,c.b,c.a);
+        stroke(c.r,c.g,c.b,c.a);
         line((int)l.getX1(),
              (int)l.getY1(),
              (int)l.getX2(),
@@ -139,18 +155,18 @@ public class DTSplitter extends PApplet
     
     private void drawPoint(Point2D p, Color color)
     {
-        RGB c = new RGB(color);
-        fill(c.r,c.g,c.b);
-        stroke(c.r,c.g,c.b);
+        RGBA c = new RGBA(color);
+        fill(c.r,c.g,c.b,c.a);
+        stroke(c.r,c.g,c.b,c.a);
         ellipse((int)p.getX(),(int)p.getY(), 5, 5);
     }
 
     private void drawSelectedPoint(ColoredPoint p)
     {
         // The circle should be transparent on the interior
-        RGB c = new RGB(p.getColor());
+        RGBA c = new RGBA(p.getColor());
         fill(0,0,0,0);
-        stroke(c.r,c.g,c.b);
+        stroke(c.r,c.g,c.b,c.a);
         strokeWeight(selectCircleWidth);
 
         ellipse((int)p.getX(),(int)p.getY(),
@@ -161,9 +177,9 @@ public class DTSplitter extends PApplet
 
     private void drawFoundPoint(ColoredPoint p)
     {
-        RGB c = new RGB(p.getColor());
+        RGBA c = new RGBA(p.getColor());
         fill(0,0,0,0);
-        stroke(c.r,c.g,c.b);
+        stroke(c.r,c.g,c.b,c.a);
         strokeWeight(foundSquareWidth);
         rectMode(CENTER);
 
@@ -176,9 +192,9 @@ public class DTSplitter extends PApplet
 
     private void drawCrossedOffPoint(ColoredPoint p)
     {
-        RGB c = new RGB(p.getColor());
+        RGBA c = new RGBA(p.getColor());
         fill(0,0,0);
-        stroke(c.r,c.g,c.b);
+        stroke(c.r,c.g,c.b,c.a);
         strokeWeight(crossedOffWidth);
 
         // Draw the two lines to make an X
@@ -199,6 +215,8 @@ public class DTSplitter extends PApplet
         if (mainMode == MainMode.INPUT_MODE)
         { // Handle user input
             screenState.triangulation.addDelaunayPoint(
+                    new ColoredPoint(mouseX, mouseY, drawColor));
+            screenState.backgroundTriangulation.addDelaunayPoint(
                     new ColoredPoint(mouseX, mouseY, drawColor));
         }
     }
@@ -229,6 +247,7 @@ public class DTSplitter extends PApplet
                 if (!demoManager.step())
                 { // If we're done, go back into input mode.
                     mainMode = MainMode.INPUT_MODE;
+                    screenState.backgroundTriangulation.clear();
                     screenState.displayFormat = ScreenState.DisplayFormat.IN_FORMAT;
                     assert screenState.triangulation.isEmpty();
                     assert screenState.selectedPoints.isEmpty();

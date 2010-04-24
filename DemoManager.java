@@ -1,6 +1,5 @@
 
-/* Singleton class that manages the demo. */
-
+/* Class that manages the demonstration. */
 class DemoManager
 {
     ScreenState screenState;
@@ -22,7 +21,13 @@ class DemoManager
     /* Returns false if the demo is over. */
     public boolean step()
     {
-        return topLevelDemo.step();
+        if (topLevelDemo.step())
+            return true;
+        else
+        {
+            screenState.backgroundTriangulation.clear();
+            return false;
+        }
     }
 }
 

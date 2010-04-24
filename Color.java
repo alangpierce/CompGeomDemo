@@ -5,5 +5,6 @@ enum Color
     RED,
     BLUE,
     GREEN,
-    YELLOW
+    YELLOW,
+    LIGHT_GRAY
 }

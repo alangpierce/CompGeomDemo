@@ -7,6 +7,7 @@ class ScreenState
 {
     public ScreenState()
     {
+        backgroundTriangulation = new Triangulation();
         triangulation = new Triangulation();
         redTriangulation = new Triangulation();
         blueTriangulation = new Triangulation();
@@ -23,6 +24,9 @@ class ScreenState
     };
 
     public DisplayFormat displayFormat;
+
+    /* The entire time, we display the original triangulation in light gray. */
+    public Triangulation backgroundTriangulation;
 
     /* User input format: colored points with edges denoting their Delaunay
      * triangulation. */
