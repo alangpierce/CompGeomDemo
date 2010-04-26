@@ -239,6 +239,11 @@ public class DTSplitter extends PApplet
             if (key == ENTER || key == RETURN)
             {
                 demoManager.startDemo();
+                // HACK: We have to append this string in two different places
+                // because of the different paths from which we can call the
+                // demo manager.
+                screenState.displayText += "\nPress x to cancel the " +
+                    "computation.";
                 mainMode = MainMode.DEMO_MODE;
             }
         }
@@ -250,8 +255,25 @@ public class DTSplitter extends PApplet
                 { // Wait for the user to press enter, in case they were
                   // spamming the space bar.
                     screenState.displayText = "Demo over. Press Enter to " +
-                        "input a new set of points";
+                        "input a new set of points.";
                     demoOver = true;
+                }
+                else
+                {
+                    screenState.displayText += "\nPress x to cancel the " +
+                        "computation.";
+                }
+            }
+
+            // The user wants to cancel the computation. If demoOver is true,
+            // then this isn't valid, because the user already has a "press
+            // enter" message.
+            if (key == 'x')
+            {
+                if (!demoOver)
+                {
+                    mainMode = MainMode.INPUT_MODE;
+                    screenState.clearAll();
                 }
             }
 
@@ -261,13 +283,7 @@ public class DTSplitter extends PApplet
                 {
                     demoOver = false;
                     mainMode = MainMode.INPUT_MODE;
-                    screenState.backgroundTriangulation.clear();
-                    screenState.displayFormat = ScreenState.DisplayFormat.IN_FORMAT;
-                    assert screenState.triangulation.isEmpty();
-                    assert screenState.selectedPoints.isEmpty();
-
-                    screenState.redTriangulation.clear();
-                    screenState.blueTriangulation.clear();
+                    screenState.clearAll();
                 }
             }
         }

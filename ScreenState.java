@@ -44,5 +44,17 @@ class ScreenState
     public int displayX;
     public int displayY;
     public String displayText = "";
+
+    public void clearAll()
+    { /* Clear all of the data structures that we hold. */
+        displayFormat = DisplayFormat.IN_FORMAT;
+        backgroundTriangulation.clear();
+        triangulation.clear();
+        selectedPoints.clear();
+        foundPoints.clear();
+        crossedOffPoints.clear();
+        redTriangulation.clear();
+        blueTriangulation.clear();
+    }
 }
 
