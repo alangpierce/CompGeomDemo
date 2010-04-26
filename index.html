@@ -4,9 +4,11 @@
 
 <body>
 
+<center>
 <h1>Delaunay Triangulation Splitter</h1>
 
 <h2>By Alan Pierce</h2>
+</center>
 
 <p> Add red and blue points to the area below, and then hit enter and press
 space over and over to step through and algorithm that finds the Delaunay
@@ -18,17 +20,53 @@ potential improvements and possible bugs. </p>
 
 <br />
 
+<center>
 <applet code="DTSplitter.class" width=640 height=480>
 You need to have Java enabled to use this.
 </applet>
+</center>
 
 <br />
 <br />
 
+<h2>Algorithm Explanation</h2>
 
-The complete algorithm, and its analysis, are described in the paper
+<p>
+The basic idea of the algorithm is to use the known Delaunay triangulation to
+speed up the point location step. Since the point location is in a certain sense
+the hardest part of the incremental Delaunay triangulation algorithm, the
+speedup allows the algorithm to run in linear time.
+
+The algorithm is recursive, and proceeds as follows:
+
+<ol>
+<li>Pick two points at random (they may or may not be the same color).</li>
+<li>From each chosen point, independently, run a search for the nearest
+neighbor of the same color. Stop when either of the two searches succeeds, and
+use that result. This search can be done by running a Dijkstra-like algorithm on
+the given Delaunay triangulation. It can be shown that this step takes expected constant
+time, in part because two points were chosen for the search instead of one. Once
+the search finishes, ignore the other point; we now have a single randomly
+chosen point and we have its nearest neighbor. Call this chosen point p and its
+nearest neighbor q.</li>
+<li>Remove p, and compute the Delaunay triangulation of the new
+set of red and blue points. This can be done in time O(deg(p)) time, which is
+expected O(1).</li>
+<li>Recursively split the remaining triangulation in linear time.</li>
+<li>We know that q is in the same triangulation where we want to insert p,
+because q and p are the same color. Search all triangles adjacent to q, and test
+to see if p is in each one. This takes time proportional to the degree of q,
+which can be shown to be constant in expectation, so this step takes expected constant
+time.</li>
+<li>Insert p into this triangle, and apply Delaunay flips until the
+triangulation is Delaunay, using the usual method of the incremental algorithm.
+This step also takes expected constant time.</li>
+</ol>
+
+
+<p>The complete algorithm, and its analysis, are described in the paper
 "Splitting a Delaunay Triangulation in Linear Time", by B. Chazelle,
-O. Devillers, F. Hurtado, M. Mora, V. Sacristan, and M. Teillaud.
+O. Devillers, F. Hurtado, M. Mora, V. Sacristan, and M. Teillaud.</p>
 
 </body>
 </html>
