@@ -30,6 +30,10 @@ public class DTSplitter extends PApplet
     DemoManager demoManager;
     ScreenState screenState;
 
+    Timer timer;
+
+    boolean autoRunning = false;
+
     static boolean demoOver = false;
 
     /* The "boldness" of a circle that selects a point. */
@@ -43,6 +47,8 @@ public class DTSplitter extends PApplet
     static final int foundSquareWidth = 4;
     static final int foundSquareLength = 15;
 
+    static final int refreshRate = 8;
+
     enum MainMode
     {
         INPUT_MODE,
@@ -54,13 +60,25 @@ public class DTSplitter extends PApplet
         size(640, 480);
         smooth();
         fill(0,0,0);
-        frameRate(8);
+        frameRate(refreshRate);
         screenState = new ScreenState();
         demoManager = new DemoManager(screenState);
-    }  
+        timer = new Timer(new AlgoStepper(), refreshRate);
+    }
+
+    private class AlgoStepper
+        implements Timer.TickHandler
+    {
+        public void tick()
+        {
+            key = ' ';
+            keyPressed();
+        }
+    }
 
     public void draw()
     {
+        timer.feed();
         background(226);
 
         if (screenState.displayFormat == ScreenState.DisplayFormat.IN_FORMAT)
@@ -243,7 +261,7 @@ public class DTSplitter extends PApplet
                 // because of the different paths from which we can call the
                 // demo manager.
                 screenState.displayText += "\nPress x to cancel the " +
-                    "computation.";
+                    "computation.\nPress p to toggle continuous play.";
                 mainMode = MainMode.DEMO_MODE;
             }
         }
@@ -261,7 +279,21 @@ public class DTSplitter extends PApplet
                 else
                 {
                     screenState.displayText += "\nPress x to cancel the " +
-                        "computation.";
+                        "computation.\nPress p to toggle continuous play.";
+                }
+            }
+
+            if (key == 'p')
+            {
+                if (!autoRunning)
+                {
+                    timer.start(1000);
+                    autoRunning = true;
+                }
+                else
+                {
+                    timer.stop();
+                    autoRunning = false;
                 }
             }
 
@@ -274,6 +306,8 @@ public class DTSplitter extends PApplet
                 {
                     mainMode = MainMode.INPUT_MODE;
                     screenState.clearAll();
+                    autoRunning = false;
+                    timer.stop();
                 }
             }
 
@@ -284,6 +318,8 @@ public class DTSplitter extends PApplet
                     demoOver = false;
                     mainMode = MainMode.INPUT_MODE;
                     screenState.clearAll();
+                    autoRunning = false;
+                    timer.stop();
                 }
             }
         }

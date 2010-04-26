@@ -1,6 +1,6 @@
 all : DTSplitter.class ColoredPoint.class Color.class DemoManager.class \
       ScreenState.class AlgorithmDemo.class RGBA.class Triangulation.class \
-      Matrix.class
+      Matrix.class Timer.class
 
 DTSplitter.class : DTSplitter.java
 	javac DTSplitter.java
@@ -28,6 +28,9 @@ Triangulation.class : Triangulation.java
 
 Matrix.class : Matrix.java
 	javac Matrix.java
+
+Timer.class : Timer.java
+	javac Timer.java
 
 clean :
 	rm *.class
