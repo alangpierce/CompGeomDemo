@@ -32,8 +32,8 @@ public class DTSplitter extends PApplet
 
     Timer timer;
 
-    boolean autoRunning = false;
-    boolean delaunayCircleOption = true;
+    boolean continuousPlay = false;
+    boolean delaunayCircleOption = false;
 
     static boolean demoOver = false;
 
@@ -145,6 +145,15 @@ public class DTSplitter extends PApplet
             for (Point2D p : screenState.blueTriangulation.points())
                 drawPoint(p, Color.BLUE);
 
+            // Draw the selected and found points for when we insert points back
+            // in.
+            for (ColoredPoint p : screenState.selectedPoints)
+                drawSelectedPoint(p);
+
+            for (ColoredPoint p : screenState.foundPoints)
+                drawFoundPoint(p);
+
+
             if (delaunayCircleOption)
             {
                 /* If the cursor is over a triangle, display its circle. */
@@ -192,7 +201,7 @@ public class DTSplitter extends PApplet
 
             /* Only display the "auto" option when we're in demo mode. */
             text("Continuous play: " +
-                 (autoRunning ? "on" : "off"), 500, 450);
+                 (continuousPlay ? "on" : "off"), 500, 450);
         }
 
         fill(0,0,0);
@@ -335,15 +344,15 @@ public class DTSplitter extends PApplet
 
             if (key == 'p')
             {
-                if (!autoRunning)
+                if (!continuousPlay)
                 {
                     timer.start(1000);
-                    autoRunning = true;
+                    continuousPlay = true;
                 }
                 else
                 {
                     timer.stop();
-                    autoRunning = false;
+                    continuousPlay = false;
                 }
             }
 
@@ -356,7 +365,7 @@ public class DTSplitter extends PApplet
                 {
                     mainMode = MainMode.INPUT_MODE;
                     screenState.clearAll();
-                    autoRunning = false;
+                    continuousPlay = false;
                     timer.stop();
                 }
             }
@@ -368,7 +377,7 @@ public class DTSplitter extends PApplet
                     demoOver = false;
                     mainMode = MainMode.INPUT_MODE;
                     screenState.clearAll();
-                    autoRunning = false;
+                    continuousPlay = false;
                     timer.stop();
                 }
             }

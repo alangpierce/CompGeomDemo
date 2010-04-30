@@ -19,6 +19,7 @@ class AlgorithmDemo
     /* Keep track of the point that we remove */
     ColoredPoint removedPoint;
     ColoredPoint removedNeighbor;
+    Color removedSelectionColor;
 
     ArrayList<ColoredPoint> searchPoints1;
     ArrayList<ColoredPoint> searchPoints2;
@@ -48,6 +49,7 @@ class AlgorithmDemo
         assert screenState.displayFormat == ScreenState.DisplayFormat.IN_FORMAT;
 
         removedPoint = null;
+        removedNeighbor = null;
     }
 
     /* Returns true on success, false if the demo is over. */
@@ -146,7 +148,9 @@ class AlgorithmDemo
 
                 if (neighbor.getColor() == nearPoint.getColor())
                 {
+                    /* Save color info here for later. */
                     removedPoint = nearPoint;
+                    removedNeighbor = neighbor;
                     Color goodColor = null;
                     if (nearPoint.equals(chosenPoint1))
                         goodColor = chosen1Color;
@@ -154,6 +158,8 @@ class AlgorithmDemo
                         goodColor = chosen2Color;
                     else
                         assert false;
+
+                    removedSelectionColor = goodColor;
 
                     screenState.foundPoints.add(neighbor.withColor(goodColor));
                     screenState.selectedPoints.clear();
@@ -231,6 +237,10 @@ class AlgorithmDemo
                     currentTriangulation = screenState.blueTriangulation;
 
                 currentTriangulation.addPoint(removedPoint);
+                screenState.selectedPoints.add(
+                        removedPoint.withColor(removedSelectionColor));
+                screenState.foundPoints.add(
+                        removedNeighbor.withColor(removedSelectionColor));
 
                 algoState = AlgoState.DELAUNAY_FLIP;
                 break;
@@ -239,6 +249,9 @@ class AlgorithmDemo
                 screenState.displayText = 
                     "Apply Delaunay flips to make the triangulation a " +
                     "Delaunay triangulation.";
+
+                screenState.selectedPoints.clear();
+                screenState.foundPoints.clear();
                 
                 if (!currentTriangulation.stepDelaunay(removedPoint))
                     algoState = AlgoState.END_ALGORITHM;
