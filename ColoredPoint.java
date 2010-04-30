@@ -10,6 +10,12 @@ class ColoredPoint
 {
     Color color;
 
+    public ColoredPoint(double x, double y)
+    {
+        super(x,y);
+        color = Color.BLACK;
+    }
+
     public ColoredPoint(double x, double y, Color color)
     {
         super(x,y);

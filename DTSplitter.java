@@ -33,6 +33,7 @@ public class DTSplitter extends PApplet
     Timer timer;
 
     boolean autoRunning = false;
+    boolean delaunayCircleOption = true;
 
     static boolean demoOver = false;
 
@@ -48,6 +49,10 @@ public class DTSplitter extends PApplet
     static final int foundSquareLength = 15;
 
     static final int refreshRate = 8;
+
+    static final String optionsMessage = "\nPress x to cancel the " +
+                    "computation.\nPress p to toggle continuous play.\n" +
+                    "Press c to toggle Delaunay circles.";
 
     enum MainMode
     {
@@ -107,6 +112,16 @@ public class DTSplitter extends PApplet
 
             for (ColoredPoint p : screenState.crossedOffPoints)
                 drawCrossedOffPoint(p);
+
+            if (delaunayCircleOption)
+            {
+                /* If the cursor is over a triangle, display its circle. */
+                Circle selectedCircle = screenState.triangulation.highlightedTriangle(
+                            new ColoredPoint(mouseX, mouseY));
+
+                if (selectedCircle != null)
+                    drawCircle(selectedCircle, Color.BLACK);
+            }
         }
         else
         { // Display 2 triangulations with colored edges and vertices.
@@ -129,6 +144,20 @@ public class DTSplitter extends PApplet
                 drawPoint(p, Color.RED);
             for (Point2D p : screenState.blueTriangulation.points())
                 drawPoint(p, Color.BLUE);
+
+            if (delaunayCircleOption)
+            {
+                /* If the cursor is over a triangle, display its circle. */
+                Circle redSelectedCircle = screenState.redTriangulation.highlightedTriangle(
+                            new ColoredPoint(mouseX, mouseY));
+                Circle blueSelectedCircle = screenState.blueTriangulation.highlightedTriangle(
+                            new ColoredPoint(mouseX, mouseY));
+
+                if (redSelectedCircle != null)
+                    drawCircle(redSelectedCircle, Color.RED);
+                if (blueSelectedCircle != null)
+                    drawCircle(blueSelectedCircle, Color.BLUE);
+            }
         }
 
         if (mainMode == MainMode.INPUT_MODE)
@@ -172,7 +201,7 @@ public class DTSplitter extends PApplet
              (int)l.getX2(),
              (int)l.getY2());
     }
-    
+
     private void drawPoint(Point2D p, Color color)
     {
         RGBA c = new RGBA(color);
@@ -229,6 +258,17 @@ public class DTSplitter extends PApplet
 
         strokeWeight(1);
     }
+
+    private void drawCircle(Circle circ, Color color)
+    {
+        RGBA c = new RGBA(color);
+        noFill();
+        stroke(c.r,c.g,c.b,c.a);
+        ellipse((int)circ.p.getX(),
+             (int)circ.p.getY(),
+             (int)(2.0*circ.r),
+             (int)(2.0*circ.r));
+    }
     
     public void mousePressed()
     {
@@ -243,6 +283,9 @@ public class DTSplitter extends PApplet
 
     public void keyPressed()
     {
+        if (key == 'c')
+            delaunayCircleOption = !delaunayCircleOption;
+
         if (mainMode == MainMode.INPUT_MODE)
         { // Space toggles color in input mode.
             assert false;
@@ -260,8 +303,7 @@ public class DTSplitter extends PApplet
                 // HACK: We have to append this string in two different places
                 // because of the different paths from which we can call the
                 // demo manager.
-                screenState.displayText += "\nPress x to cancel the " +
-                    "computation.\nPress p to toggle continuous play.";
+                screenState.displayText += optionsMessage;
                 mainMode = MainMode.DEMO_MODE;
             }
         }
@@ -278,8 +320,7 @@ public class DTSplitter extends PApplet
                 }
                 else
                 {
-                    screenState.displayText += "\nPress x to cancel the " +
-                        "computation.\nPress p to toggle continuous play.";
+                    screenState.displayText += optionsMessage;
                 }
             }
 

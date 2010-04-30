@@ -29,38 +29,6 @@ class Triangulation
     /* Add a point and add edges to make it a triangulation. */
     public void addPoint(ColoredPoint p)
     {
-        /*
-        for (ColoredPoint q : points)
-        {
-            boolean good = true;
-
-            for (Line2D l : edges)
-            {
-                // We can't intersect a line if one of the points is the
-                // same. We aren't using any math operations to cause
-                // roundoff, and all of this code is a hack anyway, so I'm
-                // just using equals.
-                if (l.getP1().equals(p) ||
-                        l.getP1().equals(q) ||
-                        l.getP2().equals(p) ||
-                        l.getP2().equals(q))
-                    continue;
-
-                if (l.intersectsLine(q.getX(),
-                                     q.getY(),
-                                     p.getX(),
-                                     p.getY()))
-                {
-                    good = false;
-                    break;
-                }
-            }
-
-            if (good)
-                edges.add(new Line2D.Double(q, p));
-        }
-        */
-
         points.add(p);
 
         fixTriangulation();
@@ -196,9 +164,97 @@ class Triangulation
         return false;
     }
 
+    /* Find the circle containing the triangle under the given point, or null if
+     * there is none. */
+    public Circle highlightedTriangle(ColoredPoint p)
+    {
+        double bestArea = 0.0;
+        ColoredPoint bestP1 = null;
+        ColoredPoint bestP2 = null;
+        ColoredPoint bestP3 = null;
+
+        /* Try every triangle by brute force, finding the one of minimal area
+         * (this works because any bad ones will strictly contain the good one. */
+        for (ColoredPoint p1 : points)
+        {
+            for (ColoredPoint p2 : points)
+            {
+                if (p1.equals(p2))
+                    break;
+                if (!lineInSet(new Line2D.Double(p1, p2), edges))
+                    continue;
+
+                for (ColoredPoint p3 : points)
+                {
+                    if (p3.equals(p2))
+                        break;
+                    if (!lineInSet(new Line2D.Double(p1, p3), edges) ||
+                        !lineInSet(new Line2D.Double(p2, p3), edges))
+                        continue;
+
+                    if (ptInTriangle(p, p1, p2, p3))
+                    {
+                        double newArea = triangleArea(p1, p2, p3);
+                        if (bestP1 == null ||
+                            newArea < bestArea)
+                        {
+                            bestP1 = p1;
+                            bestP2 = p2;
+                            bestP3 = p3;
+                            bestArea = newArea;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (bestP1 == null)
+            return null;
+
+        /* From here, we want to find the intersection of any two perpendicular
+         * bisectors. q1 and q2 are the two midpoints. */
+        ColoredPoint q1 = new ColoredPoint((bestP1.getX() + bestP2.getX()) / 2.0,
+                                           (bestP1.getY() + bestP2.getY()) / 2.0);
+        ColoredPoint q2 = new ColoredPoint((bestP2.getX() + bestP3.getX()) / 2.0,
+                                           (bestP2.getY() + bestP3.getY()) / 2.0);
+
+        /* d1 and d2 are direction vectors along the original edges. */
+        ColoredPoint d1 = new ColoredPoint(q1.getX() - bestP1.getX(),
+                                           q1.getY() - bestP1.getY());
+        ColoredPoint d2 = new ColoredPoint(q2.getX() - bestP2.getX(),
+                                           q2.getY() - bestP2.getY());
+
+        /* dir1 and dir2 are rotated versions of d1 and d2.  */
+        ColoredPoint dir1 = new ColoredPoint(-d1.getY(), d1.getX());
+        ColoredPoint dir2 = new ColoredPoint(-d2.getY(), d2.getX());
+
+        /* We now want to solve the equation q1 + a*dir1 = q2 + b*dir2 for a and
+         * b. Putting this into a standard form, we get
+         * a*dir1 - b*dir2 = q2 - q1. Let r = q2 - q1 for easier manipulations
+         * later. */
+        ColoredPoint r = new ColoredPoint(q2.getX() - q1.getX(),
+                                          q2.getY() - q1.getY());
+
+        /* We can use Cramer's Rule to compute the actual solution. */
+        double det = dir1.getX()*(-dir2.getY()) - (-dir2.getX())*dir1.getY();
+
+        if (Math.abs(det) < 1e-9)
+            return null;
+
+        double a = (-r.getX()*dir2.getY() + r.getY()*dir2.getX()) / det;
+        double b = (dir1.getX()*r.getY() - dir1.getY()*r.getX()) / det;
+
+        ColoredPoint centerPoint = new ColoredPoint(q1.getX() + a*dir1.getX(),
+                                              q1.getY() + a*dir1.getY());
+
+        return new Circle(centerPoint, centerPoint.distance(bestP1));
+    }
 
     public boolean lineInSet(Line2D l, HashSet<Line2D> set)
     {
+        return set.contains(l) ||
+               set.contains(new Line2D.Double(l.getP2(), l.getP1()));
+        /*
         for (Line2D m : set)
         {
             // TODO: fix this awful hack. It turns out the Line2D isn't as nice
@@ -209,6 +265,7 @@ class Triangulation
                 return true;
         }
         return false;
+        */
     }
 
     /* Returns true if success, false if it didn't need flipping. */
@@ -275,11 +332,25 @@ class Triangulation
         return false;
     }
 
+    /* Get the area of the triangle defined by the three points. */
+    public static double triangleArea(Point2D a,
+                                      Point2D b,
+                                      Point2D c)
+    {
+        /* Use the shoelace theorem. */
+        return Math.abs(a.getX()*b.getY() +
+                        b.getX()*c.getY() +
+                        c.getX()*a.getY() -
+                        a.getY()*b.getX() -
+                        b.getY()*c.getX() -
+                        c.getY()*a.getX()) / 2.0;
+    }
+
     /* Return true iff point p is inside triangle abc. */
     public static boolean ptInTriangle(Point2D p,
-                                Point2D a,
-                                Point2D b,
-                                Point2D c)
+                                       Point2D a,
+                                       Point2D b,
+                                       Point2D c)
     {
         int ccw1 = CCW(a,b,p);
         int ccw2 = CCW(b,c,p);
@@ -365,5 +436,6 @@ class Triangulation
 
         System.out.println("Tests passed!");
     }
+
 }
 
