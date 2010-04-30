@@ -1,5 +1,5 @@
 JC = javac
-JCFLAGS = -source 1.5 -target 1.5
+JFLAGS = -source 1.5 -target 1.5
 
 all : DTSplitter.class ColoredPoint.class Color.class DemoManager.class \
       ScreenState.class AlgorithmDemo.class RGBA.class Triangulation.class \
