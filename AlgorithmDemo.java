@@ -223,8 +223,7 @@ class AlgorithmDemo
             case ADD_POINT:
                 screenState.displayText = 
                     "Find the triangle incident with the previous nearest " +
-                    "neighbor.\n" +
-                    "Add the removed point back in.";
+                    "neighbor. Add the removed point back in.";
 
                 if (removedPoint.getColor() == Color.RED)
                     currentTriangulation = screenState.redTriangulation;

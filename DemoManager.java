@@ -8,8 +8,8 @@ class DemoManager
     public DemoManager(ScreenState screenState)
     {
         this.screenState = screenState;
-        screenState.displayX = 100;
-        screenState.displayY = 400;
+        screenState.displayX = 10;
+        screenState.displayY = 407;
     }
 
     public void startDemo()

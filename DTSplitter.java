@@ -164,22 +164,23 @@ public class DTSplitter extends PApplet
         { /* The info at the bottom depends on what mode we're in. */
             // Draw the instructions
             fill(0,0,0);
-            text("Current Color:", 425, 440);
+            text("Current Color:", 10, 420);
 
             if (drawColor == Color.RED)
             {
                 fill(255,0,0);
-                text("Red", 517, 440);
+                text("Red", 102, 420);
             }
             else
             {
                 fill(0,0,255);
-                text("Blue", 517, 440);
+                text("Blue", 102, 420);
             }
 
             fill(0,0,0);
-            text("Press space to toggle color.", 425, 455);
-            text("Press enter to start the algorithm.", 425, 470);
+            text("Press space to toggle color.\n" +
+                 "Press enter to start the algorithm.\n" +
+                 "Press c to toggle Delaunay circles.",  10, 435);
         }
         else
         {
@@ -188,7 +189,15 @@ public class DTSplitter extends PApplet
             text(screenState.displayText,
                  screenState.displayX,
                  screenState.displayY);
+
+            /* Only display the "auto" option when we're in demo mode. */
+            text("Continuous play: " +
+                 (autoRunning ? "on" : "off"), 500, 450);
         }
+
+        fill(0,0,0);
+        text("Delaunay circles: " +
+             (delaunayCircleOption ? "on" : "off"), 500, 465);
     }
 
     private void drawLine(Line l, Color color)
