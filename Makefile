@@ -3,7 +3,7 @@ JFLAGS = -source 1.5 -target 1.5
 
 all : DTSplitter.class ColoredPoint.class Color.class DemoManager.class \
       ScreenState.class AlgorithmDemo.class RGBA.class Triangulation.class \
-      Matrix.class Timer.class Circle.class
+      Matrix.class Timer.class Circle.class Line.class
 
 DTSplitter.class : DTSplitter.java
 	$(JC) $(JFLAGS) DTSplitter.java
@@ -37,6 +37,9 @@ Timer.class : Timer.java
 
 Circle.class : Circle.java
 	$(JC) $(JFLAGS) Circle.java
+
+Line.class : Line.java
+	$(JC) $(JFLAGS) Line.java
 
 clean :
 	rm *.class

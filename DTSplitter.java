@@ -90,14 +90,14 @@ public class DTSplitter extends PApplet
         { // Display a triangulation with black edges and colored vertices.
             
             // Draw the background triangulation
-            for (Line2D l : screenState.backgroundTriangulation.edges())
+            for (Line l : screenState.backgroundTriangulation.edges())
                 drawLine(l, Color.LIGHT_GRAY);
 
             for (ColoredPoint p : screenState.backgroundTriangulation.points())
                 drawPoint(p, Color.LIGHT_GRAY);
 
             // Draw the edges
-            for (Line2D l : screenState.triangulation.edges())
+            for (Line l : screenState.triangulation.edges())
                 drawLine(l, Color.BLACK);
 
             // Draw the points
@@ -127,16 +127,16 @@ public class DTSplitter extends PApplet
         { // Display 2 triangulations with colored edges and vertices.
 
             // Draw the background triangulation
-            for (Line2D l : screenState.backgroundTriangulation.edges())
+            for (Line l : screenState.backgroundTriangulation.edges())
                 drawLine(l, Color.LIGHT_GRAY);
 
             for (ColoredPoint p : screenState.backgroundTriangulation.points())
                 drawPoint(p, Color.LIGHT_GRAY);
 
             // Draw the edges
-            for (Line2D l : screenState.redTriangulation.edges())
+            for (Line l : screenState.redTriangulation.edges())
                 drawLine(l, Color.RED);
-            for (Line2D l : screenState.blueTriangulation.edges())
+            for (Line l : screenState.blueTriangulation.edges())
                 drawLine(l, Color.BLUE);
 
             // Draw the points
@@ -191,7 +191,7 @@ public class DTSplitter extends PApplet
         }
     }
 
-    private void drawLine(Line2D l, Color color)
+    private void drawLine(Line l, Color color)
     {
         RGBA c = new RGBA(color);
         fill(c.r,c.g,c.b,c.a);

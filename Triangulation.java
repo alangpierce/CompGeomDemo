@@ -6,12 +6,12 @@ import java.awt.geom.*;
 class Triangulation
 {
     HashSet<ColoredPoint> points;
-    HashSet<Line2D> edges;
+    HashSet<Line> edges;
 
     public Triangulation()
     {
         points = new HashSet<ColoredPoint>();
-        edges = new HashSet<Line2D>();
+        edges = new HashSet<Line>();
     }
 
     public HashSet<ColoredPoint> points()
@@ -20,7 +20,7 @@ class Triangulation
         return points;
     }
 
-    public HashSet<Line2D> edges()
+    public HashSet<Line> edges()
     {
         // TODO
         return edges;
@@ -49,10 +49,10 @@ class Triangulation
                 if (p.equals(q))
                     continue;
 
-                if (lineInSet(new Line2D.Double(p,q), edges))
+                if (lineInSet(new Line(p,q), edges))
                     continue;
 
-                for (Line2D l : edges)
+                for (Line l : edges)
                 {
                     if (l.getP1().equals(p) ||
                             l.getP1().equals(q) ||
@@ -70,7 +70,7 @@ class Triangulation
                     }
                 }
                 if (good)
-                    edges.add(new Line2D.Double(p,q));
+                    edges.add(new Line(p,q));
             }
         }
     }
@@ -95,10 +95,10 @@ class Triangulation
         points.remove(p);
 
         /* Remove all edges incident with the removed point. */
-        Iterator<Line2D> iter = edges.iterator();
+        Iterator<Line> iter = edges.iterator();
         while (iter.hasNext())
         {
-            Line2D l = iter.next();
+            Line l = iter.next();
 
             if (l.getP1().equals(p) ||
                     l.getP2().equals(p))
@@ -130,7 +130,7 @@ class Triangulation
         { /* Loop as long as we change something. */
             updated = false;
 
-            for (Line2D l : edges)
+            for (Line l : edges)
             {
                 /* Try to do a flip on this edges. If it's successful, we've
                  * changed our edges data structure, so we need to iterate back
@@ -152,10 +152,10 @@ class Triangulation
      * flipped. Otherwise, return true and flip one edge. */
     public boolean stepDelaunay(ColoredPoint p)
     {
-        for (Line2D l : edges)
+        for (Line l : edges)
         {
-            if (lineInSet(new Line2D.Double(p, l.getP1()), edges) &&
-                lineInSet(new Line2D.Double(p, l.getP2()), edges))
+            if (lineInSet(new Line(p, l.getP1()), edges) &&
+                lineInSet(new Line(p, l.getP2()), edges))
             {
                 if (flipEdge(l))
                     return true;
@@ -181,15 +181,15 @@ class Triangulation
             {
                 if (p1.equals(p2))
                     break;
-                if (!lineInSet(new Line2D.Double(p1, p2), edges))
+                if (!lineInSet(new Line(p1, p2), edges))
                     continue;
 
                 for (ColoredPoint p3 : points)
                 {
                     if (p3.equals(p2))
                         break;
-                    if (!lineInSet(new Line2D.Double(p1, p3), edges) ||
-                        !lineInSet(new Line2D.Double(p2, p3), edges))
+                    if (!lineInSet(new Line(p1, p3), edges) ||
+                        !lineInSet(new Line(p2, p3), edges))
                         continue;
 
                     if (ptInTriangle(p, p1, p2, p3))
@@ -250,26 +250,13 @@ class Triangulation
         return new Circle(centerPoint, centerPoint.distance(bestP1));
     }
 
-    public boolean lineInSet(Line2D l, HashSet<Line2D> set)
+    public boolean lineInSet(Line l, HashSet<Line> set)
     {
-        return set.contains(l) ||
-               set.contains(new Line2D.Double(l.getP2(), l.getP1()));
-        /*
-        for (Line2D m : set)
-        {
-            // TODO: fix this awful hack. It turns out the Line2D isn't as nice
-            // as I wanted it to be, and keeps the points as an ordered pair
-            // instead of an unordered one.
-            if ((l.getP1().equals(m.getP1()) && l.getP2().equals(m.getP2())) ||
-                (l.getP1().equals(m.getP2()) && l.getP2().equals(m.getP1())))
-                return true;
-        }
-        return false;
-        */
+        return set.contains(l);
     }
 
     /* Returns true if success, false if it didn't need flipping. */
-    public boolean flipEdge(Line2D l)
+    public boolean flipEdge(Line l)
     {
         Point2D neighbor1 = null;
         Point2D neighbor2 = null;
@@ -284,8 +271,8 @@ class Triangulation
         {
             /* Any neighbors we add need to be adjacent to both points in our
              * edge. */
-            if (!lineInSet(new Line2D.Double(q,p1), edges) ||
-                !lineInSet(new Line2D.Double(q,p2), edges))
+            if (!lineInSet(new Line(q,p1), edges) ||
+                !lineInSet(new Line(q,p2), edges))
             {
                 continue;
             }
@@ -325,7 +312,7 @@ class Triangulation
             ptInCircle(neighbor2, p1, p2, neighbor1))
         {
             edges.remove(l);
-            edges.add(new Line2D.Double(neighbor1, neighbor2));
+            edges.add(new Line(neighbor1, neighbor2));
             return true;
         }
 
